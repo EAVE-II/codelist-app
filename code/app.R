@@ -15,7 +15,7 @@ df <- df[-7]
 # cols1 is names of column in the main dataframe
 # cols1View is how the column names will appear in the web app
 cols1 <- c('Category', 'AE', 'viewCodes')
-cols1View <- c('Category', 'Adverse event', 'Codes')
+cols1View <- c('Category', 'Adverse event', '')
 
 #rename columns
 df <- rename(df,  'AE' = 'Adverse event',
@@ -66,7 +66,8 @@ server <- function(input, output) {
     table <- datatable(data[cols1], escape = FALSE, selection = 'none',
                        colnames = cols1View,  filter = 'top',
                        options = list(columnDefs = list( list(targets = 3, searchable = FALSE),
-                                                         list(width = '50px', targets = 3) )))
+                                                         list(width = '50px', targets = 3),
+                                                         list(width = '2000px', targets =c(1,2)))))
     
     table
   })
