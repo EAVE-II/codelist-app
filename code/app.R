@@ -170,8 +170,7 @@ server <- function(input, output) {
     output$read_codes= DT::renderDataTable(
       read_codes, colnames = c('Read Codes', 'Description'),
       server = FALSE)
-    
-    # Create the read code and icd-10 code tables
+
     output$icd10_codes= DT::renderDataTable(
       icd10_codes, colnames = c('ICD-10 Codes', 'Description'),
       server = FALSE)
