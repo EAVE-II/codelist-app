@@ -1,3 +1,11 @@
+###################################################################### 
+
+## Code author: Steven Kerr
+
+## Description: This is the code for a read/ICD-10 code browsing app.
+# It is currently hosted at https://argoshare.is.ed.ac.uk/content/537/
+###################################################################### 
+
 library(shiny)
 library(data.table)
 library(readxl)
@@ -10,42 +18,40 @@ library(writexl)
 
 ########################## PREPARE DATA #####################################
 
-# Read from github
-url <- 'https://github.com/EAVE-II/read-code-app/raw/master/data/Adverse%20events%20-%20study%20design%20and%20codes_vB.xlsx'
+# Read from github. Better this way in case you forget to pull.
+url <- 'https://github.com/EAVE-II/read-code-app/raw/master/data/Adverse%20event%20codes_v1.xlsx'
 
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
-excel <- read_excel(tf, 2L)
+excel <- read_excel(tf, 3L)
 
-# Read from local directory
-#df <-read_excel("Adverse events - study design and codes_vB.xlsx", sheet = 'Codes')
-df <- excel[-7]
+# Last column contains notes
+excel <- excel[-11]
 
 # cols is names of column in the main dataframe
-# colsView is how the column names will appear in the web app
-cols <- c('Category', 'AE', 'viewCodes')
-colsView <- c('Category', 'Adverse event', '')
-
-# For after update. 
-#cols <- c('AE', 'Cateogry', 'Owner', 'ID', 'viewCodes')
-#colsView <- c('Adverse event', 'Category', 'Owner', 'ID', '')
+cols <- c('AE', 'Category', 'owner', 'ID', 'viewCodes')
+cols_view <- c('Adverse event', 'Category', 'Owner', 'ID', '')
 
 #rename columns
-df <- rename(df,  'AE' = 'Adverse event',
+excel <- rename(excel,  'AE' = 'Adverse event',
              'read_codes' = 'Read codes',
+             'read_code_desc' = 'Read code description',
              'icd10_codes' = 'ICD-10 codes',
-             'read_codesSource' =  'Source: Read codes',
-             'icd10_codesSource' = 'Source: ICD-10 code')
+             'icd10_code_desc' = 'ICD-10 code description',
+             'read_code_source' =  'Source: Read codes',
+             'icd10_code_source' = 'Source: ICD-10 code',
+             'owner' = 'Owner',
+             'date' = 'Date modified')
 
-df <- fill(df, c('Category', 'AE', 'read_codesSource', 'icd10_codesSource'), .direction = 'down')
+excel <- fill(excel, c('Category', 'AE', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
-# For after update
-# df <- group_by(df, AE) %>% mutate( read_codes = list(read_codes),
-#                                    read_codeDesc = list(read_codeDesc),
-#                                    icd10_codes = list(icd10_codes),
-#                                    icd10_codeDesc = list(read_codeDesc)) %>% unique()
 
-df <- group_by(df, AE) %>% mutate( read_codes = list(read_codes),
-                                   icd10_codes = list(icd10_codes)) %>% unique()
+df <- group_by(excel, AE) %>% mutate(read_codes = list(read_codes),
+                                     read_code_desc = list(read_code_desc),
+                                     icd10_codes = list(icd10_codes),
+                                     icd10_code_desc = list(read_code_desc),
+                                     read_code_source = list(read_code_source),
+                                     icd10_code_source = list(icd10_code_source)
+                                     ) %>% unique()
 
 df <- as.data.frame(df)
 
@@ -53,7 +59,7 @@ df <- df[order(df$AE),]
 
 rownames(df) <- 1:nrow(df)
 
-# # Create ID_list. This only needs to be done once initially; after that it self updates
+# #Create ID_list. This only needs to be done once initially; after that it self updates
 # ID_list <- df[c('AE')]
 # 
 # ID_list['ID'] <- rownames(ID_list)
@@ -67,6 +73,8 @@ ID_list <- left_join(df['AE'], ID_list)
 
 ID_list['ID'] <- 1:nrow(ID_list)
 
+write.csv(ID_list, '../data/ID_list.csv', row.names = FALSE)
+
 # Merge ID's with df
 df <- left_join(df, ID_list)
 
@@ -78,6 +86,9 @@ shinyInput <- function(FUN, len, id, ...) {
   }
   inputs
 }
+
+# These are the columns of the sub-tables
+table_cols <- c('read_codes', 'read_code_desc', 'icd10_codes', 'icd10_code_desc')
 
 ################################# UI ####################################
 
@@ -101,21 +112,12 @@ server <- function(input, output) {
                      shinyInput(actionButton, nrow(df), 'button_', label = "View", class = "btn-primary",
                                 onclick = 'Shiny.onInputChange(\"select_button\",  this.id)' )) %>% select(cols)
     
-    # For after update
-    # table <- datatable(data[cols], escape = FALSE, selection = 'none',
-    #                    colnames = colsView,  filter = 'top',
-    #                    options = list(columnDefs = list( list(targets = 5, searchable = FALSE),
-    #                                                      list(width = '80px', targets = 5),
-    #                                                      list(width = '2000px', targets =c(1,2,3,4)))))
-    
-    
-    table <- datatable(data[cols], rownames = FALSE, escape = FALSE, selection = 'none',
-                       colnames = colsView,  filter = 'top',
-                        options = list(columnDefs = list( list(targets = 2, searchable = FALSE),
-                                                          list(width = '80px', targets = 2),
-                                                          list(width = '2000px', targets =c(0,1)))
-                    ))
-
+    table <- datatable(data[cols], escape = FALSE, selection = 'none',
+                       colnames = cols_view,  filter = 'top', rownames = FALSE,
+                       options = list(columnDefs = list( list(searchable = FALSE, targets = 4),
+                                                         list(width = '80px', targets = 4),
+                                                         list(width = '2000px', targets =c(0,1,2,3)),
+                                                         list(className = 'dt-center', targets = 3))))
     
     table
   })
@@ -124,80 +126,50 @@ server <- function(input, output) {
   output$table1 <- renderUI({DT::dataTableOutput("data")})
   
   # This creates a download link button
-  output$downloadAll <- downloadHandler(
+  output$download_all <- downloadHandler(
     filename = function() {paste( 'Adverse_events_codes_', Sys.Date(), '.xlsx', sep='')},
     content = function(file) { GET(url, write_disk(file)) }
   )
   
   # Render back and download buttons to UI
   output$buttons <- renderUI({
-    tagList(downloadButton("downloadAll", "Download excel file", class = "btn-primary"))
+    tagList(downloadButton("download_all", "Download excel file", class = "btn-primary"))
   })
   
-  
-
   # This is what happens when you press one of the "View" action buttons in
   # the main table
   observeEvent(input$select_button, {
     
     # This is the row of the action button that was clicked
-    selectedRow <- as.numeric(strsplit(input$select_button, "_")[[1]][2])
+    selected_row <- as.numeric(strsplit(input$select_button, "_")[[1]][2])
     
-    # For after update
-    # # Create data frames with all codes, and read/ICD-10 codes separately
-    # allCodes <- data.frame(read_codes = unlist(df[selectedRow, 'read_codes']),
-    #                        read_codes_desc = unlist(df[selectedRow, 'read_codes_desc'])
-    #                        icd10_codes = unlist(df[selectedRow, 'icd10_codes']),
-    #                        icd10_codes_desc = unlist(df[selectedRow, 'icd10_codes_desc']) )
+    # Select relevant rows and columns from original excel file
+    all_codes <- filter(excel, AE == df[selected_row, 'AE']) %>% select(table_cols)
     
-    # Create data frames with all codes, and read/ICD-10 codes separately
-    allCodes <- data.frame(read_codes = unlist(df[selectedRow, 'read_codes']),
-                           icd10_codes = unlist(df[selectedRow, 'icd10_codes']))
-    
-    allCodes[] <- lapply(allCodes, as.character)
+    read_codes <- na.omit(all_codes[c('read_codes', 'read_code_desc')])
 
-# For after update    
-#    read_codes <- na.omit(allCodes[c('read_codes', 'read_codes_desc')])
-#
-#    icd10_codes <- na.omit(allCodes[c('icd10_codes', 'icd10_codes_desc')])
-    
-    read_codes <- na.omit(allCodes['read_codes'])
-    
-    icd10_codes <- na.omit(allCodes['icd10_codes'])
+    icd10_codes <- na.omit(all_codes[c('icd10_codes', 'icd10_code_desc')])
     
     # Replace NA with space, for download
-    allCodes[ is.na(allCodes)] <- ''
-    
-    # Category ad adverse event names
-    Cat <- df[selectedRow, 'Category']
-    AE <- df[selectedRow, 'AE']
+    all_codes[ is.na(all_codes)] <- ''
     
     # Render header to UI
     output$header <- renderUI({
-      tagList(tags$h4( paste("Category:", Cat, sep=" ")),
-              tags$h4("Adverse Event:", AE, sep=" "))
+      tagList(tags$h4("Adverse Event:", df[selected_row, 'AE'], sep=" "),
+              tags$h4( paste("Category:", df[selected_row, 'Category'], sep=" ")) ,
+              tags$h4( paste("Owner:", df[selected_row, 'owner'], sep=" ")) ,
+              tags$h4( paste("ID:", df[selected_row, 'ID'], sep=" ")))
     })
     
    
-    # For after update
-    # # Create the read code and icd-10 code tables
-    # output$read_codes= DT::renderDataTable(
-    #   read_codes, colnames = c('Read Codes', 'Description'),
-    #   server = FALSE)
-     
     # Create the read code and icd-10 code tables
     output$read_codes= DT::renderDataTable(
-      read_codes, colnames = 'Read Codes',
+      read_codes, colnames = c('Read Codes', 'Description'),
       server = FALSE)
     
-    # For after update
-    # # Create the read code and icd-10 code tables
-    # output$read_codes= DT::renderDataTable(
-    #   icd10_codes, colnames = c('ICD-10 Codes', 'Description'),
-    #   server = FALSE)
-    
+    # Create the read code and icd-10 code tables
     output$icd10_codes= DT::renderDataTable(
-      icd10_codes, colnames = 'ICD-10 codes',
+      icd10_codes, colnames = c('ICD-10 Codes', 'Description'),
       server = FALSE)
     
     # Render read code and icd-10 code tables to UI
@@ -208,11 +180,10 @@ server <- function(input, output) {
     output$table2 <- renderUI({
       div(style="padding: 30px 0px", DT::dataTableOutput("read_codes"))})
     
-    
     # This creates a download link button
     output$download <- downloadHandler(
-      filename = function() {paste( AE, "_codes_", Sys.Date(), '.csv', sep='')},
-      content = function(file) {write.csv(allCodes, file)}
+      filename = function() {paste( df[selected_row, 'AE'], "_codes_", Sys.Date(), '.csv', sep='')},
+      content = function(file) {write.csv(all_codes, file)}
     )
     
     # Render back and download buttons to UI
@@ -237,11 +208,10 @@ server <- function(input, output) {
     
     # Put download excel file button back
     output$buttons <- renderUI({
-      tagList(downloadButton("downloadAll", "Download excel file", class = "btn-primary"))
+      tagList(downloadButton("download_all", "Download excel file", class = "btn-primary"))
     })
   })
 }
 
 # Run the application 
 shinyApp(ui = ui, server = server)
-
