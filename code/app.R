@@ -115,6 +115,7 @@ server <- function(input, output) {
     table <- datatable(data[cols], escape = FALSE, selection = 'none',
                        colnames = cols_view,  filter = 'top', rownames = FALSE,
                        options = list(columnDefs = list( list(searchable = FALSE, targets = 4),
+                                                         list(width = '80px', targets = 3),
                                                          list(width = '80px', targets = 4),
                                                          list(width = '2000px', targets =c(0,1,2,3)),
                                                          list(className = 'dt-center', targets = 3))))
