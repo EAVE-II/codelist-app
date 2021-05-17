@@ -19,7 +19,7 @@ library(writexl)
 ########################## PREPARE DATA #####################################
 
 # Read from github. Better this way in case you forget to pull.
-url <- 'https://github.com/EAVE-II/read-code-app/raw/master/data/Adverse%20event%20codes_v1.xlsx'
+url <- 'https://github.com/EAVE-II/read-code-app/raw/master/code/Adverse%20event%20codes_v1.xlsx'
 
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 excel <- read_excel(tf, 3L)
@@ -64,16 +64,16 @@ rownames(df) <- 1:nrow(df)
 # 
 # ID_list['ID'] <- rownames(ID_list)
 # 
-# write.csv(ID_list, '../data/ID_list.csv', row.names = FALSE)
+# write.csv(ID_list, './ID_list.csv', row.names = FALSE)
 
 #Update ID_list
-ID_list <- read.csv('../data/ID_list.csv')
+ID_list <- read.csv('./ID_list.csv')
 
 ID_list <- left_join(df['AE'], ID_list)
 
 ID_list['ID'] <- 1:nrow(ID_list)
 
-write.csv(ID_list, '../data/ID_list.csv', row.names = FALSE)
+write.csv(ID_list, './ID_list.csv', row.names = FALSE)
 
 # Merge ID's with df
 df <- left_join(df, ID_list)
