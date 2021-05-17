@@ -27,10 +27,6 @@ excel <- read_excel(tf, 3L)
 # Last column contains notes
 excel <- excel[-11]
 
-# cols is names of column in the main dataframe
-cols <- c('AE', 'Category', 'owner', 'ID', 'viewCodes')
-cols_view <- c('Adverse event', 'Category', 'Owner', 'ID', '')
-
 #rename columns
 excel <- rename(excel,  'AE' = 'Adverse event',
              'read_codes' = 'Read codes',
@@ -41,6 +37,8 @@ excel <- rename(excel,  'AE' = 'Adverse event',
              'icd10_code_source' = 'Source: ICD-10 code',
              'owner' = 'Owner',
              'date' = 'Date modified')
+
+excel$date <- as.Date(excel$date)
 
 excel <- fill(excel, c('Category', 'AE', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
@@ -87,6 +85,11 @@ shinyInput <- function(FUN, len, id, ...) {
   inputs
 }
 
+# cols is names of column in the main dataframe
+# colsView is the column name that will appear in the app
+cols <- c('AE', 'Category', 'owner', 'ID', 'date', 'viewCodes')
+cols_view <- c('Adverse event', 'Category', 'Owner', 'ID', 'Last modified', '')
+
 # These are the columns of the sub-tables
 table_cols <- c('read_codes', 'read_code_desc', 'icd10_codes', 'icd10_code_desc')
 
@@ -114,10 +117,10 @@ server <- function(input, output) {
     
     table <- datatable(data[cols], escape = FALSE, selection = 'none',
                        colnames = cols_view,  filter = 'top', rownames = FALSE,
-                       options = list(columnDefs = list( list(searchable = FALSE, targets = 4),
+                       options = list(columnDefs = list( list(searchable = FALSE, targets = 5),
                                                          list(width = '80px', targets = 3),
                                                          list(width = '80px', targets = 4),
-                                                         list(width = '2000px', targets =c(0,1,2,3)),
+                                                         list(width = '2000px', targets =c(0,1,2)),
                                                          list(className = 'dt-center', targets = 3))))
     
     table
