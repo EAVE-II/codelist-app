@@ -5,12 +5,21 @@ library(dplyr)
 library(tidyr)
 library(DT)
 library(shinythemes)
+library(httr)
+library(writexl)
 
 ########################## PREPARE DATA #####################################
 
-df <-read_excel("Adverse events - study design and codes_vB.xlsx", sheet = 'Codes')
+# Read from github
+url <- 'https://github.com/EAVE-II/read-code-app/raw/master/data/Adverse%20events%20-%20study%20design%20and%20codes_vB.xlsx'
 
-df <- df[-7]
+GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
+excel <- read_excel(tf, 2L)
+
+# Read from local directory
+#df <-read_excel("Adverse events - study design and codes_vB.xlsx", sheet = 'Codes')
+
+df <- excel[-7]
 
 # cols1 is names of column in the main dataframe
 # cols1View is how the column names will appear in the web app
@@ -30,6 +39,28 @@ df <- group_by(df, AE) %>% mutate( readCodes = list(readCodes),
                                    icd10Codes = list(icd10Codes)) %>% unique()
 
 df <- as.data.frame(df)
+
+df <- df[order(df$AE),] 
+
+rownames(df) <- 1:nrow(df)
+
+
+# # Create ID_list. This only needs to be done once initially; after that it self updates
+# ID_list <- df[c('AE')]
+# 
+# ID_list['ID'] <- rownames(ID_list)
+# 
+# write.csv(ID_list, '../data/ID_list.csv', row.names = FALSE)
+
+#Update ID_list
+ID_list <- read.csv('../data/ID_list.csv')
+
+ID_list <- left_join(df['AE'], ID_list)
+
+ID_list['ID'] <- 1:nrow(new)
+
+# Merge ID's with df
+df <- left_join(df, ID_list)
 
 # This makes a series of action buttons
 shinyInput <- function(FUN, len, id, ...) {
@@ -66,7 +97,7 @@ server <- function(input, output) {
     table <- datatable(data[cols1], escape = FALSE, selection = 'none',
                        colnames = cols1View,  filter = 'top',
                        options = list(columnDefs = list( list(targets = 3, searchable = FALSE),
-                                                         list(width = '50px', targets = 3),
+                                                         list(width = '80px', targets = 3),
                                                          list(width = '2000px', targets =c(1,2)))))
     
     table
@@ -74,6 +105,22 @@ server <- function(input, output) {
   
   # Render main table in UI
   output$table1 <- renderUI({DT::dataTableOutput("data")})
+  
+  # This creates a download link button
+  output$downloadAll <- downloadHandler(
+    filename = function() {paste( 'Adverse_events_codes_', Sys.Date(), '.csv', sep='')},
+    content = function(file) { file.copy('../data/Adverse events - study design and codes_vB.xlsx') }
+  )
+  
+  # Render back and download buttons to UI
+  output$buttons <- renderUI({
+    tagList( actionButton("return", "Back to all codes", class = "btn-primary"),
+             downloadButton("downloadAll", "Download excel file", class = "btn-primary"))
+  })
+  
+  
+  
+  
   
   # This is what happens when you press one of the "View" action buttons in
   # the main table
