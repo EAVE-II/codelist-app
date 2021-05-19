@@ -24,8 +24,8 @@ url <- 'https://github.com/EAVE-II/read-code-app/raw/master/code/Adverse%20event
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 excel <- read_excel(tf, 3L)
 
-# Last column contains notes
-excel <- excel[-11]
+# Only keep relevant columns
+#excel <- excel[, 1:10]
 
 #rename columns
 excel <- rename(excel,  'AE' = 'Adverse event',
@@ -42,14 +42,7 @@ excel$date <- as.Date(excel$date)
 
 excel <- fill(excel, c('Category', 'AE', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
-
-df <- group_by(excel, AE) %>% mutate(read_codes = list(read_codes),
-                                     read_code_desc = list(read_code_desc),
-                                     icd10_codes = list(icd10_codes),
-                                     icd10_code_desc = list(read_code_desc),
-                                     read_code_source = list(read_code_source),
-                                     icd10_code_source = list(icd10_code_source)
-                                     ) %>% unique()
+df <- select(excel, c('AE', 'Category', 'owner', 'date')) %>% unique()
 
 df <- as.data.frame(df)
 
@@ -57,7 +50,7 @@ df <- df[order(df$AE),]
 
 rownames(df) <- 1:nrow(df)
 
-# #Create ID_list. This only needs to be done once initially; after that it self updates
+#Create ID_list. This only needs to be done once initially; after that it self updates
 # ID_list <- df[c('AE')]
 # 
 # ID_list['ID'] <- rownames(ID_list)

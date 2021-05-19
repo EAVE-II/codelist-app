@@ -17,53 +17,60 @@
 "Coeliac disease",16
 "Convulsions/Seizures",17
 "Crohn’s disease",18
-"Dermatomyositis/polymyositis",19
-"Diarrhoea",20
-"Dilated cardiomyopathy",21
-"Encephalitis and myelitis",22
-"Epistaxis",23
-"Erythema nodosum",24
-"Fever",25
-"Goodpasture syndrome",26
-"Gout",27
-"Guillain Barre syndrome",28
-"Haemolytic anaemia",29
-"Hypertrophic Cardiomyopathy",30
-"Jaundice",31
-"Mixed connective tissue disorder",32
-"Multiple sclerosis",33
-"Multisystem inflammatory syndrome",34
-"Myasthenia gravis",35
-"Myocardial infarction",36
-"Myocarditis or pericarditis",37
-"Narcolepsy",38
-"Neutropenia/agranulocytosis",39
-"Non-rheumatoid or Psoriatic arthropathy",40
-"Optic neuritis",41
-"Other Cardiomyopathy",42
-"Pernicious anaemia",43
-"Polymyalgia rheumatic",44
-"Primary Biliary Cirrhosis",45
-"Primary or Idiopathic Thrombocytopaenia",46
-"Primary pulmonary hypertension",47
-"Pulmonary fibrosis",48
-"Reye's syndrome",49
-"Rhabdomyolysis",50
-"Rheumatoid arthritis",51
-"Sarcoidosis",52
-"Scleroderma and systemic sclerosis",53
-"Secondary or other Thrombocytopaenia",54
-"Secondary pulmonary hypertension",55
-"Sjögren’s syndrome",56
-"Spondylarthropathies",57
-"Stroke",58
-"Sudden death",59
-"Systemic lupus erythematosus (local and systematic)",60
-"Transplant refection or failure",61
-"Type 1 diabetes",62
-"Ulcerative colitis",63
-"Unplanned ICU admission",64
-"Unspecified rash",65
-"Vasculitis",66
-"Vomiting",67
-"Wheezing",68
+"Deep venous thrombosis and pulmonary embolism",19
+"Dermatomyositis/polymyositis",20
+"Diarrhoea",21
+"Dilated cardiomyopathy",22
+"Disseminated intravascular coagulation",23
+"Encephalitis and myelitis",24
+"Epistaxis",25
+"Erythema nodosum",26
+"Fever",27
+"Goodpasture syndrome",28
+"Gout",29
+"Guillain Barre syndrome",30
+"Haemolytic anaemia",31
+"Hypertrophic Cardiomyopathy",32
+"Intracerebral haemorrhage",33
+"Intracranial venous thrombosis",34
+"Jaundice",35
+"Mixed connective tissue disorder",36
+"Multiple sclerosis",37
+"Multisystem inflammatory syndrome",38
+"Myasthenia gravis",39
+"Myocardial infarction",40
+"Myocarditis or pericarditis",41
+"Narcolepsy",42
+"Neutropenia/agranulocytosis",43
+"Non-rheumatoid or Psoriatic arthropathy",44
+"Optic neuritis",45
+"Other Cardiomyopathy",46
+"Other non-traumatic intracranial haemorrhage",47
+"Other venous thromboembolism",48
+"Pernicious anaemia",49
+"Polymyalgia rheumatic",50
+"Primary Biliary Cirrhosis",51
+"Primary or Idiopathic Thrombocytopaenia",52
+"Primary pulmonary hypertension",53
+"Pulmonary fibrosis",54
+"Reye's syndrome",55
+"Rhabdomyolysis",56
+"Rheumatoid arthritis",57
+"Sarcoidosis",58
+"Scleroderma and systemic sclerosis",59
+"Secondary or other Thrombocytopaenia",60
+"Secondary pulmonary hypertension",61
+"Sjögren’s syndrome",62
+"Spondylarthropathies",63
+"Stroke",64
+"Sudden death",65
+"Systemic lupus erythematosus (local and systematic)",66
+"Thrombocytopenia",67
+"Transplant refection or failure",68
+"Type 1 diabetes",69
+"Ulcerative colitis",70
+"Unplanned ICU admission",71
+"Unspecified rash",72
+"Vasculitis",73
+"Vomiting",74
+"Wheezing",75
