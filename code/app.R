@@ -24,9 +24,6 @@ url <- 'https://github.com/EAVE-II/read-code-app/raw/master/code/Adverse%20event
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 excel <- read_excel(tf, 3L)
 
-# Only keep relevant columns
-#excel <- excel[, 1:10]
-
 #rename columns
 excel <- rename(excel,  'AE' = 'Adverse event',
              'read_codes' = 'Read codes',
@@ -42,6 +39,7 @@ excel$date <- as.Date(excel$date)
 
 excel <- fill(excel, c('Category', 'AE', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
+# df will be used to fill the main table. excel will be used to populate sub-tables.
 df <- select(excel, c('AE', 'Category', 'owner', 'date')) %>% unique()
 
 df <- as.data.frame(df)
@@ -133,7 +131,7 @@ server <- function(input, output) {
     tagList(downloadButton("download_all", "Download excel file", class = "btn-primary"))
   })
   
-  # This is what happens when you press one of the "View" action buttons in
+  # This defines what happens when you press one of the "View" action buttons in
   # the main table
   observeEvent(input$select_button, {
     
@@ -190,7 +188,7 @@ server <- function(input, output) {
     
   })
   
-  # This is what happens when you click the "Back to all codes" button.  
+  # This defines what happens when you click the "Back to all codes" button.  
   observeEvent(input$return, {
     
     # Get rid of header
