@@ -37,10 +37,10 @@ excel <- rename(excel,  'AE' = 'Adverse event',
 
 excel$date <- as.Date(excel$date)
 
-excel <- fill(excel, c('Category', 'AE', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
+excel <- fill(excel, c('Category', 'AE', 'Projects', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
 # df will be used to fill the main table. excel will be used to populate sub-tables.
-df <- select(excel, c('AE', 'Category', 'owner', 'date')) %>% unique()
+df <- select(excel, c('AE', 'Category', 'Projects', 'owner', 'date')) %>% unique()
 
 df <- as.data.frame(df)
 
@@ -78,8 +78,8 @@ shinyInput <- function(FUN, len, id, ...) {
 
 # cols is names of column in the main dataframe
 # colsView is the column name that will appear in the app
-cols <- c('AE', 'Category', 'owner', 'ID', 'date', 'viewCodes')
-cols_view <- c('Adverse event', 'Category', 'Owner', 'ID', 'Last modified', '')
+cols <- c('AE', 'Category', 'Projects', 'owner', 'ID', 'date', 'viewCodes')
+cols_view <- c('Adverse event', 'Category', 'Projects', 'Owner', 'ID', 'Last modified', '')
 
 # These are the columns of the sub-tables
 table_cols <- c('read_codes', 'read_code_desc', 'icd10_codes', 'icd10_code_desc')
@@ -88,7 +88,7 @@ table_cols <- c('read_codes', 'read_code_desc', 'icd10_codes', 'icd10_code_desc'
 
 ui <- fluidPage(
   theme = shinytheme("cerulean"),
-  titlePanel('Codes'),
+  titlePanel('Code Library'),
   uiOutput("header"),
   uiOutput('table1'),
   uiOutput('table2'),
@@ -108,11 +108,11 @@ server <- function(input, output) {
     
     table <- datatable(data[cols], escape = FALSE, selection = 'none',
                        colnames = cols_view,  filter = 'top', rownames = FALSE,
-                       options = list(columnDefs = list( list(searchable = FALSE, targets = 5),
-                                                         list(width = '80px', targets = 3),
-                                                         list(width = '80px', targets = 4),
-                                                         list(width = '2000px', targets =c(0,1,2)),
-                                                         list(className = 'dt-center', targets = 3))))
+                       options = list(columnDefs = list( list(searchable = FALSE, targets = 6),
+                                                         list(width = '120px', targets = c(3,6)),
+                                                         list(width = '60px', targets = 4),
+                                                         list(width = '2000px', targets =c(0,1,2, 3)),
+                                                         list(className = 'dt-center', targets = 4))))
     
     table
   })
