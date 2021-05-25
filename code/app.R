@@ -16,7 +16,6 @@ library(shinythemes)
 library(httr)
 library(writexl)
 
-
 ########################## PREPARE DATA #####################################
 
 # Read from github. Better this way in case you forget to pull.
