@@ -16,7 +16,6 @@ library(shinythemes)
 library(httr)
 library(writexl)
 
-
 ############################ FUNCTIONS ################################
 
 # This makes a series of action buttons
@@ -49,9 +48,12 @@ excel <- rename(excel,  'AE' = 'Adverse event',
 
 excel$date <- as.Date(excel$date)
 
+# Fill downwards by adverse event first. 
+# Then for each adverse advent, fill projects down
+# Then group by (AE, Projects), and fill down the rest that are unchanging.
 excel <- fill(excel, 'AE', .direction = 'down')
 
-excel <- group_by(excel, AE ) %>% fill( 'Projects', .direction = 'down')
+excel <- group_by(excel, AE) %>% fill('Projects', .direction = 'down')
 
 excel <- group_by(excel, AE, Projects) %>% fill( c('Category', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
@@ -82,8 +84,6 @@ write.csv(ID_list, './ID_list.csv', row.names = FALSE)
 
 # Merge ID's with df
 df <- left_join(df, ID_list)
-
-
 
 # cols is names of column in the main dataframe
 # colsView is the column name that will appear in the app
