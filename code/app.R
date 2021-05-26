@@ -16,10 +16,34 @@ library(shinythemes)
 library(httr)
 library(writexl)
 
+############################ FUNCTIONS ################################
+
+# Find the mode of a vector. If there are multiple, return the first that appears.
+# If length is zero, return NA
+Mode <- function(x) {
+  x <- x[ !is.na(x)   ]
+  
+  if( length(x) == 0 ){
+    return(NA)
+  } else{
+    ux <- unique(x)
+    return( ux[which.max(tabulate(match(x, ux))) ] )
+  }
+}
+
+# This makes a series of action buttons
+shinyInput <- function(FUN, len, id, ...) {
+  inputs <- character(len)
+  for (i in seq_len(len)) {
+    inputs[i] <- as.character(FUN(paste0(id, i), ...))
+  }
+  inputs
+}
+
 ########################## PREPARE DATA #####################################
 
 # Read from github. Better this way in case you forget to pull.
-url <- 'https://github.com/EAVE-II/read-code-app/raw/master/code/Adverse%20event%20codes_v1.xlsx'
+url <- 'https://github.com/EAVE-II/read-code-app/raw/master/code/code_library.xlsx'
 
 GET(url, write_disk(tf <- tempfile(fileext = ".xlsx")))
 excel <- read_excel(tf, 3L)
@@ -37,7 +61,11 @@ excel <- rename(excel,  'AE' = 'Adverse event',
 
 excel$date <- as.Date(excel$date)
 
-excel <- fill(excel, c('Category', 'AE', 'Projects', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
+excel <- fill(excel, 'AE', .direction = 'down')
+
+excel <- group_by(excel, AE ) %>% fill( 'Projects', .direction = 'down')
+
+excel <- group_by(excel, AE, Projects) %>% fill( c('Category', 'read_code_source', 'icd10_code_source', 'owner', 'date'), .direction = 'down')
 
 # df will be used to fill the main table. excel will be used to populate sub-tables.
 df <- select(excel, c('AE', 'Category', 'Projects', 'owner', 'date')) %>% unique()
@@ -67,14 +95,7 @@ write.csv(ID_list, './ID_list.csv', row.names = FALSE)
 # Merge ID's with df
 df <- left_join(df, ID_list)
 
-# This makes a series of action buttons
-shinyInput <- function(FUN, len, id, ...) {
-  inputs <- character(len)
-  for (i in seq_len(len)) {
-    inputs[i] <- as.character(FUN(paste0(id, i), ...))
-  }
-  inputs
-}
+
 
 # cols is names of column in the main dataframe
 # colsView is the column name that will appear in the app
