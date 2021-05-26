@@ -16,20 +16,8 @@ library(shinythemes)
 library(httr)
 library(writexl)
 
-############################ FUNCTIONS ################################
 
-# Find the mode of a vector. If there are multiple, return the first that appears.
-# If length is zero, return NA
-Mode <- function(x) {
-  x <- x[ !is.na(x)   ]
-  
-  if( length(x) == 0 ){
-    return(NA)
-  } else{
-    ux <- unique(x)
-    return( ux[which.max(tabulate(match(x, ux))) ] )
-  }
-}
+############################ FUNCTIONS ################################
 
 # This makes a series of action buttons
 shinyInput <- function(FUN, len, id, ...) {
